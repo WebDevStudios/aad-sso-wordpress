@@ -390,17 +390,17 @@ class AADSSO_Settings {
 
 	public function render_org_display_name() {
 		echo '<input type="text" id="org_display_name" name="aad-settings[org_display_name]" value="' . $this->org_display_name . '" class="widefat" />';
-		echo '<br/><i>I.E.</i> Microsoft<i>. Will be displayed on login page.</i> Optional.';
+		echo '<p class="description">I.E. <strong>Microsoft</strong>. Will be displayed on login page. Optional.</p>';
 	}
 
 	public function render_org_domain_hint() {
 		echo '<input type="text" id="org_domain_hint" name="aad-settings[org_domain_hint]" value="' . $this->org_domain_hint . '" class="widefat" />';
-		echo '<br/><i>I.E.</i> microsoft.com <i>. Sent to AAD to prepopulate AD server.</i> Optional.';
+		echo '<p class="description">I.E. <strong>microsoft.com</strong>. Sent to AAD to prepopulate AD server. Optional.</p>';
 	}
 
 	public function render_org_tenant_domain() {
 		echo '<input type="text" id="tenant_domain" name="aad-settings[tenant_domain]" value="' . $this->tenant_domain . '" class="widefat" />';
-		echo '<br/><i>I.E.</i> microsoft.com <i>. Used for querying the API.</i> Optional.';
+		echo '<p class="description">I.E. <strong>microsoft.com</strong>. Used for querying the API. Optional.</p>';
 	}
 
 	public function render_client_id() {
@@ -413,7 +413,7 @@ class AADSSO_Settings {
 
 	public function render_override_user_registration() {
 		echo '<input type="checkbox" name="aad-settings[override_user_registration]" ' . checked( $this->override_user_registration, 1, false ) . ' value="1" class="widefat" />';
-		echo '<br/><i>Allow new users access to the site regardless of site registration settings</i>';
+		echo '<p class="description">Allow new users access to the site regardless of site registration settings</p>';
 	}
 
 	public function render_group_settings_section() {}
@@ -422,7 +422,7 @@ class AADSSO_Settings {
 		echo '<input type="checkbox" name="aad-settings[group_map_enabled]" '
 			. checked( $this->enable_aad_group_to_wp_role, 1, false )
 			. ' value="1" class="widefat" />';
-		echo '<br/><i>Match WordPress user role with role from AAD</i>';
+		echo '<p class="description">Match WordPress user role with role from AAD</p>';
 	}
 
 	public function render_default_wp_role() {
@@ -430,7 +430,7 @@ class AADSSO_Settings {
 		echo '<option value="">No Role</option>';
 		wp_dropdown_roles( $this->default_wp_role );
 		echo '</select>';
-		// echo '<br/><i>If no role is selected, a user will not be added.</i>';
+		// echo '<p class="description">If no role is selected, a user will not be added.</p>';
 	}
 
 	public function render_group_map_admin() {
@@ -457,7 +457,7 @@ class AADSSO_Settings {
 		echo '<textarea id="custom_roles" class="widefat" name="aad-settings[custom_roles]" rows="10">';
 		echo $this->custom_roles;
 		echo '</textarea>';
-		echo '<br/><i>Additional custom roles that should be mapped in style "[wp_role] [aad_group]". One role per line.</i>';
+		echo '<p class="description">Additional custom roles that should be mapped in style "[wp_role] [aad_group]". One role per line.</p>';
 	}
 
 	public function group_dropdown_or_input( $key ) {
