@@ -282,7 +282,7 @@ class AADSSO_Settings {
 
 		add_settings_field(
 			'tenant_domain',
-			__( 'Organization Tenent Domain' ),
+			__( 'Organization Tenant Domain' ),
 			array( $this, 'render_org_tenant_domain' ),
 			'aad-settings',
 			'aad-directory-settings'
