@@ -462,7 +462,8 @@ class AADSSO_Settings {
 
 	public function group_dropdown_or_input( $key ) {
 		$groups = $this->get_groups();
-		if ( ! $groups || empty( $groups->value )) {
+		// if no groups OR the number of groups is 199+, then use an input
+		if ( ! $groups || empty( $groups->value ) || 199 <= count( $groups->value ) ) {
 			echo '<input type="text" id="group_map_'. $key .'" name="aad-settings[group_map]['. $key .']" value="' . $this->settings['group_map'][ $key ] . '" class="widefat" />';
 		} else {
 			echo '<select style="min-width: 200px;" id="group_map_'. $key .'" name="aad-settings[group_map]['. $key .']">';
