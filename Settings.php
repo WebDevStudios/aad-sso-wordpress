@@ -484,10 +484,7 @@ class AADSSO_Settings {
 
 		if ( is_null( $groups ) ) {
 			AADSSO_GraphHelper::$tenant_id = $this->tenant_domain;
-			AADSSO_GraphHelper::$settings = (object) array(
-				'graphVersion' => $this->graphVersion,
-				'resourceURI'  => $this->resourceURI,
-			);
+			AADSSO_GraphHelper::$settings = $this;
 			$groups = AADSSO_GraphHelper::getGroups();
 		}
 
