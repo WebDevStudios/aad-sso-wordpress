@@ -303,7 +303,7 @@ class AADSSO_Profile {
 	 * @return boolean Whether current request is a redirect from AAD
 	 */
 	protected function is_redirect_from_aad() {
-		return isset( $_GET['code'], $_GET['session_state'], $_GET['id_token'] );
+		return isset( $_GET['code'], $_GET['state'] );
 	}
 
 }
