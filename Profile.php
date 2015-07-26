@@ -90,7 +90,7 @@ class AADSSO_Profile {
 		$user_id = get_current_user_id();
 
 		// if aadsso altsecid, no need to link the account
-		if ( get_user_meta( $user_id, '_aad_sso_id', 1 ) ) {
+		if ( get_user_meta( $user_id, $this->aadsso->user_id_meta_key, 1 ) ) {
 			return;
 		}
 
@@ -185,7 +185,7 @@ class AADSSO_Profile {
 		if (
 			$user_id
 			&& $this->is_redirect_from_aad()
-			&& ! get_user_meta( $user_id, '_aad_sso_id', 1 )
+			&& ! get_user_meta( $user_id, $this->aadsso->user_id_meta_key, 1 )
 			&& get_user_meta( $user_id, 'is_aadsso_linking', 1 )
 		) {
 			$this->user_to_keep = $user_id;
@@ -207,7 +207,7 @@ class AADSSO_Profile {
 		if (
 			$this->user_to_keep
 			&& is_a( $user, 'WP_User' )
-			&& ( $aad_sso_id = get_user_meta( $user->ID, '_aad_sso_id', 1 ) )
+			&& ( $aad_sso_id = get_user_meta( $user->ID, $this->aadsso->user_id_meta_key, 1 ) )
 		) {
 			$user->aad_sso_id = $aad_sso_id;
 			return $this->connect_accounts( $user );
@@ -229,7 +229,7 @@ class AADSSO_Profile {
 
 		delete_user_meta( $this->user_to_keep, 'is_aadsso_linking' );
 		update_user_meta( $this->user_to_keep, 'aadsso_is_linked', 'true' );
-		update_user_meta( $this->user_to_keep, '_aad_sso_id', $user_to_link->aad_sso_id );
+		update_user_meta( $this->user_to_keep, $this->aadsso->user_id_meta_key, $user_to_link->aad_sso_id );
 
 		// WordPress User Administration API
 		require_once( ABSPATH . 'wp-admin/includes/user.php' );

@@ -41,6 +41,7 @@ class AADSSO {
 
 	static $instance = false;
 	private $settings = null;
+	public $user_id_meta_key = '_aad_sso_id';
 
 	const ANTIFORGERY_ID_KEY = 'antiforgery-id';
 
@@ -263,7 +264,7 @@ class AADSSO {
 		}
 
 		// update usermeta so we know who the user is next time
-		update_user_meta( $new_user_id, '_aad_sso_id', $jwt->oid );
+		update_user_meta( $new_user_id, $this->user_id_meta_key, $jwt->oid );
 
 		$user = new WP_User( $new_user_id );
 
@@ -280,7 +281,7 @@ class AADSSO {
 		 * We need to do this with a normal SQL query, as get_users()
 		 * seems to behave unexpectedly in a multisite environment
 		 */
-		$query = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '_aad_sso_id' AND meta_value = %s";
+		$query = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = $this->user_id_meta_key AND meta_value = %s";
 		$query = $wpdb->prepare( $query, sanitize_text_field( $aad_id ) );
 		$user_id = $wpdb->get_var( $query );
 		$user = $user_id ? get_user_by( 'id', $user_id ) : false;
