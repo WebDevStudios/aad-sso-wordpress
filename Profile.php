@@ -123,43 +123,21 @@ class AADSSO_Profile {
 
 		$user_id = get_current_user_id();
 
-		if ( 'profile.php' != $pagenow ) {
-			$this->maybe_redirect_to_profile( $user_id );
-		} else {
-			$this->maybe_redirect_to_aad( $user_id );
+		if (
+			! isset( $_GET['user_id_to_map'] )
+			|| 'profile.php' != $pagenow
+			|| $_GET['user_id_to_map'] != $user_id
+		) {
+			return;
 		}
 
-	}
-
-	/**
-	 * Handles determing if a redirect to the profile screen is needed
-	 *
-	 * @since  0.2.1
-	 *
-	 * @param  int  $user_id User ID
-	 *
-	 * @return null
-	 */
-	public function maybe_redirect_to_profile( $user_id ) {
 		if ( get_user_meta( $user_id, 'aadsso_is_linked', 1 ) ) {
 			wp_redirect( admin_url( 'profile.php?aadsso_is_linked' ) );
 			exit;
 		}
-	}
 
-	/**
-	 * Handles determing if a redirect to the AAD signin experience is needed
-	 *
-	 * @since  0.2.1
-	 *
-	 * @param  int  $user_id User ID
-	 *
-	 * @return null
-	 */
-	public function maybe_redirect_to_aad( $user_id ) {
 		if (
-			! isset( $_GET['user_id_to_map'], $_GET['link-aadsso'] )
-			|| $_GET['user_id_to_map'] != $user_id
+			! isset( $_GET['link-aadsso'] )
 			|| ! wp_verify_nonce( $_GET['link-aadsso'], 'link-aadsso' )
 		) {
 			return;
