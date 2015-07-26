@@ -17,6 +17,7 @@ define( 'AADSSO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AADSSO_SETTINGS_PATH', AADSSO_PLUGIN_DIR . 'Settings.json' );
 
 require_once AADSSO_PLUGIN_DIR . 'Settings.php';
+require_once AADSSO_PLUGIN_DIR . 'Profile.php';
 require_once AADSSO_PLUGIN_DIR . 'AuthorizationHelper.php';
 require_once AADSSO_PLUGIN_DIR . 'GraphHelper.php';
 
@@ -43,7 +44,10 @@ class AADSSO {
 
 	const ANTIFORGERY_ID_KEY = 'antiforgery-id';
 
-	public function __construct() {
+	protected function __construct() {
+
+		AADSSO_Profile::get_instance( $this );
+
 		$this->settings = AADSSO_Settings::loadSettings();
 
 		// Set the redirect urls
