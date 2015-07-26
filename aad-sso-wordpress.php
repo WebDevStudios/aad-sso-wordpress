@@ -5,7 +5,7 @@ Plugin Name: Azure Active Directory Single Sign-on for WordPress
 Plugin URI: http://github.com/psignoret/aad-sso-wordpress
 Description: Allows you to use your organization's Azure Active Directory user accounts to log in to WordPress. If your organization is using Office 365, your user accounts are already in Azure Active Directory. This plugin uses OAuth 2.0 to authenticate users, and the Azure Active Directory Graph to get group membership and other details.
 Author: Philippe Signoret
-Version: 0.2c
+Version: 0.2.1
 Author URI: http://psignoret.com/
 */
 
@@ -195,24 +195,19 @@ class AADSSO {
 		}
 
 		// Try to find an existing user in WP with the ObjectId of the currect AAD user
-		$users = get_users( array(
-			'meta_key'    => '_aad_sso_id',
-			'meta_value'  => $jwt->oid,
-			'number'      => 1,
-			'count_total' => false,
-		) );
-		// We should ONLY have one of these
-		$user = reset( $users );
+		$user = $this->get_user_by_aad_id( $jwt->oid );
 
 		// If we have a user, log them in
 		if ( ! empty( $user ) && is_a( $user, 'WP_User' ) ) {
-			// At this point, we have an authorization code, an access token and the user exists in WordPress.
-			// All that's left is to set the roles based on group membership.
+			/*
+			 * At this point, we have an authorization code, an access token and the user exists in WordPress.
+			 * All that's left is to set the roles based on group membership.
+			 */
 			if ( $this->settings->enable_aad_group_to_wp_role ) {
 				$this->updateUserRoles( $user, $jwt->oid, $jwt->tid );
 			}
 
-			return $user;
+			return apply_filters( 'aad_sso_found_user', $user, $jwt );
 		}
 
 		/*
@@ -223,7 +218,7 @@ class AADSSO {
 		$override_reg = apply_filters( 'aad_override_user_registration', $this->settings->override_user_registration );
 
 		if ( ! $reg_open && ! $override_reg ) {
-			return new WP_Error( 'user_not_registered', sprintf( 'ERROR: The authenticated user %s is not a registered user in this blog.', $jwt->upn ) );
+			return new WP_Error( 'user_not_registered', sprintf( 'ERROR: The authenticated user %s is not a registered user in this blog.', $jwt ) );
 		}
 
 		$username = explode( '@', $jwt->upn );
@@ -237,15 +232,25 @@ class AADSSO {
 		$userdata = array(
 			'user_login'   => wp_slash( $username ),
 			'user_email'   => wp_slash( $this->determine_email( $jwt ) ),
-			'user_pass'    => wp_generate_password( 12, true ),
+			'user_pass'    => wp_generate_password( 20, true ),
 			'first_name'   => isset( $jwt->given_name ) ? esc_html( $jwt->given_name ) : '',
 			'last_name'    => isset( $jwt->family_name ) ? esc_html( $jwt->family_name ) : '',
-			'role'         => 'subscriber',
+			'role'         => $this->settings->default_wp_role ? $this->settings->default_wp_role : 'subscriber',
 		);
 
 		$userdata['display_name'] = $userdata['nickname'] = $userdata['first_name'] && $userdata['last_name']
 			? $userdata['first_name'] . ' ' . $userdata['last_name']
 			: $userdata['first_name'];
+
+		// Allow user-creation override
+		$user = apply_filters( 'aad_sso_new_user_override', null, $userdata, $jwt );
+
+		// If we have a user, log them in
+		if ( ! empty( $user ) && is_a( $user, 'WP_User' ) ) {
+
+			// At this point, the user exists in WordPress.
+			return apply_filters( 'aad_sso_found_user', $user, $jwt );
+		}
 
 		$new_user_id = wp_insert_user( $userdata );
 
@@ -262,7 +267,21 @@ class AADSSO {
 			$this->updateUserRoles( $user, $jwt->oid, $jwt->tid );
 		}
 
-		return $user;
+		return apply_filters( 'aad_sso_found_user', $user, $jwt );
+	}
+
+	public function get_user_by_aad_id( $aad_id ) {
+		global $wpdb;
+		/*
+		 * We need to do this with a normal SQL query, as get_users()
+		 * seems to behave unexpectedly in a multisite environment
+		 */
+		$query = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '_aad_sso_id' AND meta_value = %s";
+		$query = $wpdb->prepare( $query, sanitize_text_field( $aad_id ) );
+		$user_id = $wpdb->get_var( $query );
+		$user = $user_id ? get_user_by( 'id', $user_id ) : false;
+
+		return apply_filters( 'aad_sso_id_user', $user, $aad_id );
 	}
 
 	public function determine_email( $jwt ) {
