@@ -281,8 +281,8 @@ class AADSSO {
 		 * We need to do this with a normal SQL query, as get_users()
 		 * seems to behave unexpectedly in a multisite environment
 		 */
-		$query = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = $this->user_id_meta_key AND meta_value = %s";
-		$query = $wpdb->prepare( $query, sanitize_text_field( $aad_id ) );
+		$query = "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s";
+		$query = $wpdb->prepare( $query, $this->user_id_meta_key, sanitize_text_field( $aad_id ) );
 		$user_id = $wpdb->get_var( $query );
 		$user = $user_id ? get_user_by( 'id', $user_id ) : false;
 
