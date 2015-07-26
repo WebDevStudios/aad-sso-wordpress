@@ -56,7 +56,7 @@ class AADSSO_Profile {
 	protected function __construct( $aadsso = null ) {
 		// Assign properties
 		$this->aadsso = is_a( $aadsso, 'AADSSO' ) ? $aadsso : AADSSO::get_instance();
-		$this->settings = AADSSO_Settings::load_settings();
+		$this->settings = AADSSO_Settings::getInstance();
 
 		// Add hooks
 		add_action( 'init', array( $this, 'init' ) );
