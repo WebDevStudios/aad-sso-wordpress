@@ -46,6 +46,15 @@ class AADSSO {
 	const ANTIFORGERY_ID_KEY = 'antiforgery-id';
 
 	protected function __construct() {
+		/*
+ 		 * This is a hack to get around Akamai proxy issues with some caching 
+ 		 * configurations. In certain hosting configurations, especially with WPE,
+ 		 * this plugin will send out a Pragma: no-cache header at inappriate times.
+ 		 */
+		if ( ! $this->is_login_area() ) {
+			// Stop furthur execution
+			return;
+		}
 
 		AADSSO_Profile::get_instance( $this );
 
@@ -151,7 +160,35 @@ class AADSSO {
 		return $wants_to_login;
 	}
 
+	/** 
+     * Is this a login area?
+     *
+     * @author Aubrey Portwood <aubrey@webdevstudios.com>
+     * @since  Friday, June 15, 2018
+     *
+     * @return boolean True if it is, false if not.
+     */
+    public function is_login_area() {
+        $login_urls = array(
+            (boolean) stristr( $_SERVER['REQUEST_URI'], '/wp-admin' ),
+            (boolean) stristr( $_SERVER['REQUEST_URI'], '/wp-login.php' ),
+        );  
+
+        return in_array( true, $login_urls, true );
+    } 
+	
 	function register_session() {
+		/*
+ 		 * Sessions should only be started while we are attempting to login.
+ 		 * If a session is started elsewhere on the frontend it will cause
+ 		 * WPE to send out a Pragma: no-cache header. When running the site
+ 		 * through an Akamai proxy it has a tendency to kill caching
+ 		 *  - Ben Lobaugh 07-05-2018
+ 		 */
+		if ( ! $this->is_login_area() ) {
+			return;
+		}
+
 		if ( ( function_exists( 'session_status' ) && PHP_SESSION_ACTIVE !== session_status() ) || ! session_id() ) {
 		  session_start();
 		}
