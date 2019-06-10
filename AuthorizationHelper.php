@@ -87,7 +87,7 @@ class AADSSO_AuthorizationHelper
         return $token;
     }
 
-    public static function validateIdToken($id_token, $settings, $antiforgery_id) {
+    public static function validateIdToken($id_token, $settings/*, $antiforgery_id*/) {
 
         $jwt = NULL;
         $lastException = NULL;
@@ -124,9 +124,9 @@ class AADSSO_AuthorizationHelper
             throw $lastException;
         }
 
-        if ($jwt->nonce != $antiforgery_id) {
+      /*  if ($jwt->nonce != $antiforgery_id) {
             throw new DomainException(sprintf('Nonce mismatch. Expecting %s', $antiforgery_id));
-        }
+        }*/
 
         return $jwt;
     }

@@ -210,9 +210,9 @@ class AADSSO {
 			return $user;
 		}
 
-		if ( ! isset( $_GET['state'] ) || $_GET['state'] != $_SESSION[ self::ANTIFORGERY_ID_KEY ] ) {
+		/*if ( ! isset( $_GET['state'] ) || $_GET['state'] != $_SESSION[ self::ANTIFORGERY_ID_KEY ] ) {
 			return new WP_Error( 'antiforgery_id_mismatch', sprintf( 'ANTIFORGERY_ID_KEY mismatch. Expecting %s', $_SESSION[ self::ANTIFORGERY_ID_KEY ] ) );
-		}
+		}*/
 
 		// Looks like we got an authorization code, let's try to get an access token
 		$token = AADSSO_AuthorizationHelper::getAccessToken( $_GET['code'], $this->settings );
@@ -231,7 +231,7 @@ class AADSSO {
 		// Happy path
 
 		try {
-			$jwt = AADSSO_AuthorizationHelper::validateIdToken( $token->id_token, $this->settings, $_SESSION[ self::ANTIFORGERY_ID_KEY ] );
+			$jwt = AADSSO_AuthorizationHelper::validateIdToken( $token->id_token, $this->settings/*, $_SESSION[ self::ANTIFORGERY_ID_KEY ] */);
 		} catch ( Exception $e ) {
 			return new WP_Error( 'invalid_id_token' , sprintf( 'ERROR: Invalid id_token. %s', $e->getMessage() ) );
 		}
